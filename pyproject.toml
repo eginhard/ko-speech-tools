@@ -34,6 +34,12 @@ dependencies = []
 repository = "https://github.com/eginhard/ko-speech-tools"
 issues = "https://github.com/eginhard/ko-speech-tools/issues"
 
+[project.optional-dependencies]
+g2p = [
+    "nltk>=3.9.1",
+    "pip>=25.2",
+]
+
 [build-system]
 requires = ["uv_build>=0.8.18,<0.9.0"]
 build-backend = "uv_build"

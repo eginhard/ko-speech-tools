@@ -17,3 +17,9 @@ path = ["src/ko_speech_tools/data/jamo/*.json"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Joshua Dong <jdong42@gmail.com>"
 SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["src/ko_speech_tools/data/g2p/*"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019 Kyubyong Park <kbpark.linguist@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
