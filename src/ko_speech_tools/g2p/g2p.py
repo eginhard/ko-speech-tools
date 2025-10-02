@@ -222,8 +222,3 @@ class G2p:
         if to_syl:
             inp = compose(inp)
         return inp
-
-
-if __name__ == "__main__":
-    g2p = G2p()
-    g2p("나의 친구가 mp3 file 3개를 다운받고 있다")

@@ -128,10 +128,3 @@ def convert_num(string: str) -> str:
         string = string.replace(d, n)
 
     return string
-
-
-if __name__ == "__main__":
-    # test
-    print(process_num("123,456,789", sino=True))
-    print(process_num("123,456,789", sino=False))
-    print(convert_num("우리 3시/B 10분/B에 만나자."))

@@ -162,10 +162,3 @@ def convert_eng(string, cmu):
         ret = re.sub("[\u1100-\u11ff]", "", ret)  # remove hangul jamo
         string = string.replace(eng_word, ret)
     return string
-
-
-if __name__ == "__main__":
-    from nltk.corpus import cmudict
-
-    cmu = cmudict.dict()
-    print(convert_eng("오늘 학교에서 밥을 먹고 집에 와서 game을 했다", cmu))
