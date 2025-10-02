@@ -1,8 +1,6 @@
 # Each line should be considered prior to others.
 # Comments are preceded by #.
-# Each line should look like [str1]===[str2],
-# where str2 replaces str1.
-# Note that these will be processed through regular expression.
+# Each line should look like [str1]===[str2], where str2 replaces str1.
 의견란===의견난
 임진란===임진난
 생산량===생산냥
