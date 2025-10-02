@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: Enno Hermann
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: PyPI publish on release
+on:
+  release:
+    types: [published]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ko-speech-tools
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+      - name: Verify tag matches version
+        run: |
+          set -ex
+          version=$(grep -m 1 version pyproject.toml | grep -P '\d+\.\d+\.\d+' -o)
+          tag="${GITHUB_REF/refs\/tags\/}"
+          if [[ "v$version" != "$tag" ]]; then
+            exit 1
+          fi
+      - name: Setup uv
+        uses: ./.github/actions/setup-uv
+      - name: Set up Python
+        run: uv python install
+      - name: Build sdist and wheel
+        run: uv build
+      - name: Test wheel
+        run: uv run --isolated --no-project --with dist/*.whl --with mecab-ko --with pytest pytest
+      - name: Test sdist
+        run: uv run --isolated --no-project --with dist/*.tar.gz --with mecab-ko --with pytest pytest
+      - name: Publish
+        run: uv publish

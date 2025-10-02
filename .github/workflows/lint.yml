@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Enno Hermann
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup uv
+        uses: ./.github/actions/setup-uv
+      - name: Lint check
+        run: uv run --only-dev pre-commit run --all-files

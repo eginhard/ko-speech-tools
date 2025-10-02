@@ -47,5 +47,33 @@ dev = [
     "ruff==0.13.2",
 ]
 
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.run]
+source = ["src/ko_speech_tools", "tests"]
+command_line = "-m pytest"
+relative_files = true
+
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --doctest-glob=README.md"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "C901",
+    "COM812",
+    "D104",
+    "FIX",
+    "PLR09",
+    "PLR2004",
+    "PLW2901",
+    "TD",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN", "D", "ERA001", "PERF203", "S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

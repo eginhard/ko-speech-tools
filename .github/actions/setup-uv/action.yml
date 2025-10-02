@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Enno Hermann
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: Setup uv
+runs:
+  using: 'composite'
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.8.22"
+        python-version: ${{ matrix.python-version }}
