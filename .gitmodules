@@ -1,0 +1,3 @@
+[submodule "src/ko_speech_tools/data/cmudict"]
+	path = src/ko_speech_tools/data/cmudict
+	url = https://github.com/cmusphinx/cmudict.git

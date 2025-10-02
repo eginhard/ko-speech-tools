@@ -1,71 +1,73 @@
 # SPDX-FileCopyrightText: 2017 Keith Ito <keeeto@gmail.com>
+# SPDX-FileContributor: 2025 Enno Hermann
 #
 # SPDX-License-Identifier: MIT
 
 """CMUDict wrapper.
 
-Source: https://github.com/keithito/tacotron"""
+Adapted from: https://github.com/keithito/tacotron
+
+Changed to use cmudict data from: https://github.com/cmusphinx/cmudict
+"""
 
 import re
-
-
-valid_symbols = [
-  'AA', 'AA0', 'AA1', 'AA2', 'AE', 'AE0', 'AE1', 'AE2', 'AH', 'AH0', 'AH1', 'AH2',
-  'AO', 'AO0', 'AO1', 'AO2', 'AW', 'AW0', 'AW1', 'AW2', 'AY', 'AY0', 'AY1', 'AY2',
-  'B', 'CH', 'D', 'DH', 'EH', 'EH0', 'EH1', 'EH2', 'ER', 'ER0', 'ER1', 'ER2', 'EY',
-  'EY0', 'EY1', 'EY2', 'F', 'G', 'HH', 'IH', 'IH0', 'IH1', 'IH2', 'IY', 'IY0', 'IY1',
-  'IY2', 'JH', 'K', 'L', 'M', 'N', 'NG', 'OW', 'OW0', 'OW1', 'OW2', 'OY', 'OY0',
-  'OY1', 'OY2', 'P', 'R', 'S', 'SH', 'T', 'TH', 'UH', 'UH0', 'UH1', 'UH2', 'UW',
-  'UW0', 'UW1', 'UW2', 'V', 'W', 'Y', 'Z', 'ZH'
-]
-
-_valid_symbol_set = set(valid_symbols)
+from collections import defaultdict
+from importlib.resources import files
+from typing import IO
 
 
 class CMUDict:
-  '''Thin wrapper around CMUDict data. http://www.speech.cs.cmu.edu/cgi-bin/cmudict'''
-  def __init__(self, file_or_path, keep_ambiguous=True):
-    if isinstance(file_or_path, str):
-      with open(file_or_path, encoding='latin-1') as f:
-        entries = _parse_cmudict(f)
-    else:
-      entries = _parse_cmudict(file_or_path)
-    if not keep_ambiguous:
-      entries = {word: pron for word, pron in entries.items() if len(pron) == 1}
-    self._entries = entries
+    """Wrapper for CMU Pronouncing Dictionary.
+
+    Provides access to English word pronunciations in ARPAbet format.
+    ARPAbet is a phonetic transcription code used for North American English.
+    """
+
+    def __init__(self, *, keep_ambiguous: bool = True) -> None:
+        """Initialize CMUDict.
+
+        Args:
+            keep_ambiguous: If False, exclude words with multiple pronunciations.
+        """
+        with (
+            files("ko_speech_tools.data.cmudict")
+            .joinpath("cmudict.dict")
+            .open(encoding="utf-8") as f
+        ):
+            entries = _parse_cmudict(f)
+        if not keep_ambiguous:
+            entries = {word: pron for word, pron in entries.items() if len(pron) == 1}
+        self._entries = entries
+
+    def __len__(self) -> int:
+        """Return the number of entries in the dictionary."""
+        return len(self._entries)
+
+    def __getitem__(self, word: str) -> list[str]:
+        """Return list of ARPAbet pronunciations of the given word."""
+        return self._entries[word.lower()]
+
+    def __contains__(self, word: str) -> bool:
+        """Check if a word exists in the dictionary.
+
+        Args:
+            word: Word to check (case-insensitive).
+
+        Returns:
+            True if word is in dictionary, False otherwise.
+        """
+        return word.lower() in self._entries
 
 
-  def __len__(self):
-    return len(self._entries)
+_alt_re = re.compile(r"\([0-9]+\)")
 
 
-  def lookup(self, word):
-    '''Returns list of ARPAbet pronunciations of the given word.'''
-    return self._entries.get(word.upper())
-
-
-
-_alt_re = re.compile(r'\([0-9]+\)')
-
-
-def _parse_cmudict(file):
-  cmudict = {}
-  for line in file:
-    if len(line) and (line[0] >= 'A' and line[0] <= 'Z' or line[0] == "'"):
-      parts = line.split('  ')
-      word = re.sub(_alt_re, '', parts[0])
-      pronunciation = _get_pronunciation(parts[1])
-      if pronunciation:
-        if word in cmudict:
-          cmudict[word].append(pronunciation)
-        else:
-          cmudict[word] = [pronunciation]
-  return cmudict
-
-
-def _get_pronunciation(s):
-  parts = s.strip().split(' ')
-  for part in parts:
-    if part not in _valid_symbol_set:
-      return None
-  return ' '.join(parts)
+def _parse_cmudict(file: IO[str]) -> dict[str, list[str]]:
+    cmudict = defaultdict(list)
+    for line in file:
+        line = line.split("#")[0].strip()  # remove comments
+        parts = line.split(" ", maxsplit=1)
+        word = re.sub(_alt_re, "", parts[0])
+        pronunciation = parts[1].strip()
+        cmudict[word].append(pronunciation)
+    return dict(cmudict)
