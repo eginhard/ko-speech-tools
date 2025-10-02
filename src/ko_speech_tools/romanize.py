@@ -129,7 +129,11 @@ def _academic(
 
 
 def hangul_romanize(text: str) -> str:
-    """Transliterate to romanized text."""
+    """Transliterate to romanized text.
+
+    >>> hangul_romanize("물엿")
+    'mul-yeos'
+    """
     result = []
     prev_syllable = None
 
