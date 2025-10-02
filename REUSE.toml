@@ -11,3 +11,9 @@ path = [".python-version", "uv.lock"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "Enno Hermann"
 SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = ["src/ko_speech_tools/data/jamo/*.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 Joshua Dong <jdong42@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
