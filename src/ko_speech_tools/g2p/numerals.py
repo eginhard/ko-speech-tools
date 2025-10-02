@@ -13,6 +13,10 @@ BOUND_NOUNS = (
     "보루 살 수 술 시 쌈 움큼 정 짝 채 척 첩 축 켤레 톨 통"
 )
 
+# Precompiled regex patterns
+_COMMA_RE = re.compile(",")
+_BOUND_NOUN_RE = re.compile(r"([\d][\d,]*)([ㄱ-힣]+)/B")
+
 
 def process_num(num: str, *, sino: bool = True) -> str:
     """Process a string looking like arabic number.
@@ -27,7 +31,7 @@ def process_num(num: str, *, sino: bool = True) -> str:
     >>> process_num("123,456,789", sino=False)
     '일억이천삼백사십오만육천칠백여든아홉'
     """
-    num = re.sub(",", "", num)
+    num = _COMMA_RE.sub("", num)
 
     if num == "0":
         return "영"
@@ -112,7 +116,7 @@ def convert_num(string: str) -> str:
 
     """
     # Bound Nouns
-    tokens = set(re.findall(r"([\d][\d,]*)([ㄱ-힣]+)/B", string))
+    tokens = set(_BOUND_NOUN_RE.findall(string))
     for token in tokens:
         num, bn = token
         if bn in BOUND_NOUNS:

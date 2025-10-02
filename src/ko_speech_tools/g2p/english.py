@@ -21,6 +21,10 @@ from ko_speech_tools.g2p.utils import (
     to_jungseong,
 )
 
+# Precompiled regex patterns
+_ENG_WORD_RE = re.compile("[A-Za-z']+")
+_HANGUL_JAMO_RE = re.compile("[\u1100-\u11ff]")
+
 
 def convert_eng(string: str, cmu: CMUDict) -> str:
     """Convert a string such that English words inside are turned into Hangul.
@@ -32,7 +36,7 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
     >>> convert_eng("그 사람 좀 old school이야", CMUDict())
     '그 사람 좀 올드 스쿨이야'
     """
-    eng_words = set(re.findall("[A-Za-z']+", string))
+    eng_words = set(_ENG_WORD_RE.findall(string))
     for eng_word in eng_words:
         if eng_word not in cmu:
             continue
@@ -159,6 +163,6 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
 
         ret = reconstruct(ret)
         ret = compose(ret)
-        ret = re.sub("[\u1100-\u11ff]", "", ret)  # remove hangul jamo
+        ret = _HANGUL_JAMO_RE.sub("", ret)  # remove hangul jamo
         string = string.replace(eng_word, ret)
     return string

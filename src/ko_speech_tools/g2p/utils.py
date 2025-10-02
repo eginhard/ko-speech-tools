@@ -14,6 +14,45 @@ from ko_speech_tools.jamo import h2j, j2h
 
 _DATA_PATH = files("ko_speech_tools.data.g2p")
 
+# Precompiled regex patterns
+_DIGIT_RE = re.compile(r"\d")
+_VOWEL_PLACEHOLDER_RE = re.compile("(^|[^\u1100-\u1112])([\u1161-\u1175])")
+_CVC_RE = re.compile("[\u1100-\u1112][\u1161-\u1175][\u11a8-\u11c2]")
+_CV_RE = re.compile("[\u1100-\u1112][\u1161-\u1175]")
+_EXAMPLE_RE = re.compile(r"([ㄱ-힣][ ㄱ-힣]*)\[([ㄱ-힣][ ㄱ-힣]*)]")
+_ANNOTATION_TAG_RE = re.compile("/[EJPB]")
+
+# fmt: off
+_ARPABET_TO_CHOSEONG = {
+    "B": "ᄇ", "CH": "ᄎ", "D": "ᄃ", "DH": "ᄃ", "DZ": "ᄌ", "F": "ᄑ",
+    "G": "ᄀ", "HH": "ᄒ", "JH": "ᄌ", "K": "ᄏ", "L": "ᄅ", "M": "ᄆ",
+    "N": "ᄂ", "NG": "ᄋ", "P": "ᄑ", "R": "ᄅ", "S": "ᄉ", "SH": "ᄉ",
+    "T": "ᄐ", "TH": "ᄉ", "TS": "ᄎ", "V": "ᄇ", "W": "W", "Y": "Y",
+    "Z": "ᄌ", "ZH": "ᄌ",
+}
+
+_ARPABET_TO_JUNGSEONG = {
+    "AA": "ᅡ", "AE": "ᅢ", "AH": "ᅥ", "AO": "ᅩ", "AW": "ᅡ우", "AWER": "ᅡ워",
+    "AY": "ᅡ이", "EH": "ᅦ", "ER": "ᅥ", "EY": "ᅦ이", "IH": "ᅵ", "IY": "ᅵ",
+    "OW": "ᅩ", "OY": "ᅩ이", "UH": "ᅮ", "UW": "ᅮ",
+}
+
+_ARPABET_TO_JONGSEONG = {
+    "B": "ᆸ", "CH": "ᆾ", "D": "ᆮ", "DH": "ᆮ", "F": "ᇁ", "G": "ᆨ",
+    "HH": "ᇂ", "JH": "ᆽ", "K": "ᆨ", "L": "ᆯ", "M": "ᆷ", "N": "ᆫ",
+    "NG": "ᆼ", "P": "ᆸ", "R": "ᆯ", "S": "ᆺ", "SH": "ᆺ", "T": "ᆺ",
+    "TH": "ᆺ", "V": "ᆸ", "W": "ᆼ", "Y": "ᆼ", "Z": "ᆽ", "ZH": "ᆽ",
+}
+
+_RECONSTRUCT_PAIRS = [
+    ("그W", "ᄀW"), ("흐W", "ᄒW"), ("크W", "ᄏW"), ("ᄂYᅥ", "니어"), ("ᄃYᅥ", "디어"),
+    ("ᄅYᅥ", "리어"), ("Yᅵ", "ᅵ"), ("Yᅡ", "ᅣ"), ("Yᅢ", "ᅤ"), ("Yᅥ", "ᅧ"),
+    ("Yᅦ", "ᅨ"), ("Yᅩ", "ᅭ"), ("Yᅮ", "ᅲ"), ("Wᅡ", "ᅪ"), ("Wᅢ", "ᅫ"),
+    ("Wᅥ", "ᅯ"), ("Wᅩ", "ᅯ"), ("Wᅮ", "ᅮ"), ("Wᅦ", "ᅰ"), ("Wᅵ", "ᅱ"),
+    ("ᅳᅵ", "ᅴ"), ("Y", "ᅵ"), ("W", "ᅮ"),
+]
+# fmt: on
+
 
 ############## English ##############
 def adjust(arpabets: list[str]) -> list[str]:
@@ -29,7 +68,7 @@ def adjust(arpabets: list[str]) -> list[str]:
         Modified list of ARPAbet symbols.
     """
     string = " " + " ".join(arpabets) + " $"
-    string = re.sub(r"\d", "", string)
+    string = _DIGIT_RE.sub("", string)
     string = string.replace(" T S ", " TS ")
     string = string.replace(" D Z ", " DZ ")
     string = string.replace(" AW ER ", " AWER ")
@@ -41,37 +80,8 @@ def adjust(arpabets: list[str]) -> list[str]:
 
 
 def to_choseong(arpabet: str) -> str:
-    """Arpabet to choseong or onset"""
-    d = {
-        "B": "ᄇ",
-        "CH": "ᄎ",
-        "D": "ᄃ",
-        "DH": "ᄃ",
-        "DZ": "ᄌ",
-        "F": "ᄑ",
-        "G": "ᄀ",
-        "HH": "ᄒ",
-        "JH": "ᄌ",
-        "K": "ᄏ",
-        "L": "ᄅ",
-        "M": "ᄆ",
-        "N": "ᄂ",
-        "NG": "ᄋ",
-        "P": "ᄑ",
-        "R": "ᄅ",
-        "S": "ᄉ",
-        "SH": "ᄉ",
-        "T": "ᄐ",
-        "TH": "ᄉ",
-        "TS": "ᄎ",
-        "V": "ᄇ",
-        "W": "W",
-        "Y": "Y",
-        "Z": "ᄌ",
-        "ZH": "ᄌ",
-    }
-
-    return d.get(arpabet, arpabet)
+    """Arpabet to choseong or onset."""
+    return _ARPABET_TO_CHOSEONG.get(arpabet, arpabet)
 
 
 def to_jungseong(arpabet: str) -> str:
@@ -105,35 +115,8 @@ def to_jungseong(arpabet: str) -> str:
 
 
 def to_jongseong(arpabet: str) -> str:
-    """Arpabet to jongseong or coda"""
-    d = {
-        "B": "ᆸ",
-        "CH": "ᆾ",
-        "D": "ᆮ",
-        "DH": "ᆮ",
-        "F": "ᇁ",
-        "G": "ᆨ",
-        "HH": "ᇂ",
-        "JH": "ᆽ",
-        "K": "ᆨ",
-        "L": "ᆯ",
-        "M": "ᆷ",
-        "N": "ᆫ",
-        "NG": "ᆼ",
-        "P": "ᆸ",
-        "R": "ᆯ",
-        "S": "ᆺ",
-        "SH": "ᆺ",
-        "T": "ᆺ",
-        "TH": "ᆺ",
-        "V": "ᆸ",
-        "W": "ᆼ",
-        "Y": "ᆼ",
-        "Z": "ᆽ",
-        "ZH": "ᆽ",
-    }
-
-    return d.get(arpabet, arpabet)
+    """Arpabet to jongseong or coda."""
+    return _ARPABET_TO_JONGSEONG.get(arpabet, arpabet)
 
 
 def reconstruct(string: str) -> str:
@@ -276,16 +259,16 @@ def compose(letters: str) -> str:
         String with jamo composed into complete Hangul syllables.
     """
     # insert placeholder
-    letters = re.sub("(^|[^\u1100-\u1112])([\u1161-\u1175])", r"\1ᄋ\2", letters)
+    letters = _VOWEL_PLACEHOLDER_RE.sub(r"\1ᄋ\2", letters)
 
     string = letters  # assembled characters
     # c+v+c
-    syls = set(re.findall("[\u1100-\u1112][\u1161-\u1175][\u11a8-\u11c2]", string))
+    syls = set(_CVC_RE.findall(string))
     for syl in syls:
         string = string.replace(syl, j2h(*syl))
 
     # c+v
-    syls = set(re.findall("[\u1100-\u1112][\u1161-\u1175]", string))
+    syls = set(_CV_RE.findall(string))
     for syl in syls:
         string = string.replace(syl, j2h(*syl))
 
@@ -309,9 +292,7 @@ def _get_examples() -> list[tuple[str, str]]:
     with _DATA_PATH.joinpath("rules.txt").open(encoding="utf-8") as text:
         for line in text:
             if line.startswith("->"):
-                examples.extend(
-                    re.findall(r"([ㄱ-힣][ ㄱ-힣]*)\[([ㄱ-힣][ ㄱ-힣]*)]", line)
-                )
+                examples.extend(_EXAMPLE_RE.findall(line))
     _examples = []
     for inp, gt in examples:
         _examples.extend((inp, each) for each in gt.split("/"))
@@ -332,7 +313,7 @@ def get_rule_id2text() -> dict[str, str]:
 
 
 def gloss(verbose: bool, out: str, inp: str, rule: str) -> None:  # noqa: FBT001
-    """displays the process and relevant information"""
-    if verbose and out != inp and out != re.sub("/[EJPB]", "", inp):
+    """Display the process and relevant information."""
+    if verbose and out != inp and out != _ANNOTATION_TAG_RE.sub("", inp):
         print(compose(inp), "->", compose(out))  # noqa: T201
         print("\033[1;31m", rule, "\033[0m")  # noqa: T201

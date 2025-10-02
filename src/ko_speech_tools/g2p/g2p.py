@@ -46,6 +46,10 @@ from ko_speech_tools.g2p.utils import (
 )
 from ko_speech_tools.jamo import h2j
 
+# Precompiled regex patterns
+_ANNOTATION_TAG_RE = re.compile("/[PJEB]")
+
+
 class G2p:
     """Korean grapheme-to-phoneme converter.
 
@@ -186,7 +190,7 @@ class G2p:
             modifying_rieul,
         ):
             inp = func(inp, descriptive=descriptive, verbose=verbose)
-        inp = re.sub("/[PJEB]", "", inp)
+        inp = _ANNOTATION_TAG_RE.sub("", inp)
 
         # 7. regular table: batchim + onset
         for str1, str2, rule_ids in self.table:
