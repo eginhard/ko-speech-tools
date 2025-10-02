@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2025 Enno Hermann
+#
+# SPDX-License-Identifier: CC0-1.0
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
+    hooks:
+      - id: ruff-check
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v5.1.1
+    hooks:
+      - id: reuse-lint-file
