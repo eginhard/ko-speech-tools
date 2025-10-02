@@ -1,142 +1,149 @@
 # SPDX-FileCopyrightText: 2015 Jeong YunWon <jeong+hangul-romanize@youknowone.org>
+# SPDX-FileContributor: 2025 Enno Hermann
 #
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Hangul romanization tool.
 
-Source:
-https://github.com/youknowone/hangul-romanize"""
+Adapted from: https://github.com/youknowone/hangul-romanize
 
-REVISED_INITIALS = 'g', 'kk', 'n', 'd', 'tt', 'l', 'm', 'b', 'pp', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'
-REVISED_VOWELS = 'a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yu', 'eu', 'ui', 'i'
-REVISED_FINALS = '', 'g', 'kk', 'gs', 'n', 'nj', 'nh', 'd', 'l', 'lg', 'lm', 'lb', 'ls', 'lt', 'lp', 'lh', 'm', 'b', 'bs', 's', 'ss', 'ng', 'j', 'ch', 'k', 't', 'p', 'h'
+The original functionality is maintained. Main changes include:
+- Code simplification.
+- Adding type hints and docstrings.
+- Update to modern Python standards."""
+
+import itertools
+
+# fmt: off
+_REVISED_INITIALS = (
+    "g", "kk", "n", "d", "tt", "l", "m", "b", "pp", "s", "ss", "", "j", "jj",
+    "ch", "k", "t", "p", "h"
+)
+_REVISED_VOWELS = (
+    "a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe",
+    "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"
+)
+_REVISED_FINALS = (
+    "", "g", "kk", "gs", "n", "nj", "nh", "d", "l", "lg", "lm", "lb", "ls", "lt",
+    "lp", "lh", "m", "b", "bs", "s", "ss", "ng", "j", "ch", "k", "t", "p", "h"
+)
+# fmt: on
 
 
-def academic_ambiguous_patterns():
-    import itertools
-    result = set()
-    for final, initial in itertools.product(REVISED_FINALS, REVISED_INITIALS):
-        check = False
+def _academic_ambiguous_patterns() -> set[str]:
+    """Find final+initial combinations that can be split in multiple ways.
+
+    For example, if "kk" can be split as both ("k", "k") and ("kk", ""),
+    it's ambiguous and needs a hyphen marker for clarity.
+    """
+    ambiguous = set()
+    for final, initial in itertools.product(_REVISED_FINALS, _REVISED_INITIALS):
         combined = final + initial
+
+        # Count valid ways to split this combination (excluding boundaries)
+        split_count = 0
         for i in range(len(combined)):
             head, tail = combined[:i], combined[i:]
-            if head in REVISED_FINALS and tail in REVISED_INITIALS:
-                if not check:
-                    check = True
-                else:
-                    result.add(combined)
+            if head in _REVISED_FINALS and tail in _REVISED_INITIALS:
+                split_count += 1
+                if split_count > 1:
+                    ambiguous.add(combined)
                     break
-    return result
+
+    return ambiguous
 
 
-ACADEMIC_AMBIGUOUS_PATTERNS = academic_ambiguous_patterns()
+_ACADEMIC_AMBIGUOUS_PATTERNS = _academic_ambiguous_patterns()
 
 
-def academic(now, pre, **options):
-    """Rule for academic translition."""
-    c, s = now
-    if not s:
-        return c
+class _Syllable:
+    """Hangul syllable interface."""
 
-    ps = pre[1] if pre else None
+    MIN = ord("가")
+    MAX = ord("힣")
 
-    marker = False
-    if ps:
-        if s.initial == 11:
-            marker = True
-        elif ps and (REVISED_FINALS[ps.final] + REVISED_INITIALS[s.initial]) in ACADEMIC_AMBIGUOUS_PATTERNS:
-            marker = True
-
-    r = u''
-    if marker:
-        r += '-'
-    r += REVISED_INITIALS[s.initial] + REVISED_VOWELS[s.vowel] + REVISED_FINALS[s.final]
-    return r
-
-try:
-    unicode(0)
-except NameError:
-    # py3
-    unicode = str
-    unichr = chr
-
-
-class Syllable(object):
-    """Hangul syllable interface"""
-
-    MIN = ord(u'가')
-    MAX = ord(u'힣')
-
-    def __init__(self, char=None, code=None):
+    def __init__(self, char: str | None = None, code: int | None = None) -> None:
         if char is None and code is None:
-            raise TypeError('__init__ takes char or code as a keyword argument (not given)')
+            msg = "__init__ takes char or code as a keyword argument (not given)"
+            raise TypeError(msg)
         if char is not None and code is not None:
-            raise TypeError('__init__ takes char or code as a keyword argument (both given)')
+            msg = "__init__ takes char or code as a keyword argument (both given)"
+            raise TypeError(msg)
         if char:
             code = ord(char)
         if not self.MIN <= code <= self.MAX:
-            raise TypeError('__init__ expected Hangul syllable but {0} not in [{1}..{2}]'.format(code, self.MIN, self.MAX))
+            msg = f"Expected Hangul syllable but {code} not in [{self.MIN}..{self.MAX}]"
+            raise TypeError(msg)
         self.code = code
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self.code - self.MIN
 
     @property
-    def initial(self):
+    def initial(self) -> int:
         return self.index // 588
 
     @property
-    def vowel(self):
+    def vowel(self) -> int:
         return (self.index // 28) % 21
 
     @property
-    def final(self):
+    def final(self) -> int:
         return self.index % 28
 
     @property
-    def char(self):
-        return unichr(self.code)
+    def char(self) -> str:
+        return chr(self.code)
 
-    def __unicode__(self):
+    def __str__(self) -> str:
         return self.char
 
-    def __repr__(self):
-        return u'''<Syllable({}({}),{}({}),{}({}),{}({}))>'''.format(
-            self.code, self.char, self.initial, u'', self.vowel, u'', self.final, u'')
+    def __repr__(self) -> str:
+        return (
+            f"<Syllable({self.code}({self.char}),"
+            f"{self.initial},{self.vowel},{self.final})>"
+        )
 
 
-class Transliter(object):
-    """General transliting interface"""
+def _academic(
+    char: str | None, syllable: _Syllable | None, prev_syllable: _Syllable | None
+) -> str | None:
+    """Rule for academic transliteration."""
+    if not syllable:
+        return char
 
-    def __init__(self, rule):
-        self.rule = rule
+    marker = prev_syllable and (
+        _REVISED_INITIALS[syllable.initial] == ""
+        or (_REVISED_FINALS[prev_syllable.final] + _REVISED_INITIALS[syllable.initial])
+        in _ACADEMIC_AMBIGUOUS_PATTERNS
+    )
 
-    def translit(self, text):
-        """Translit text to romanized text
+    result = "-" if marker else ""
+    result += (
+        _REVISED_INITIALS[syllable.initial]
+        + _REVISED_VOWELS[syllable.vowel]
+        + _REVISED_FINALS[syllable.final]
+    )
+    return result
 
-        :param text: Unicode string or unicode character iterator
-        """
-        result = []
-        pre = None, None
-        now = None, None
-        for c in text:
-            try:
-                post = c, Syllable(c)
-            except TypeError:
-                post = c, None
 
-            if now[0] is not None:
-                out = self.rule(now, pre=pre, post=post)
-                if out is not None:
-                    result.append(out)
+def hangul_romanize(text: str) -> str:
+    """Transliterate to romanized text."""
+    result = []
+    prev_syllable = None
 
-            pre = now
-            now = post
+    for c in text:
+        try:
+            syllable = _Syllable(c)
+        except TypeError:
+            result.append(c)
+            prev_syllable = None
+            continue
 
-        if now is not None:
-            out = self.rule(now, pre=pre, post=(None, None))
-            if out is not None:
-                result.append(out)
+        romanized = _academic(c, syllable, prev_syllable)
+        if romanized:
+            result.append(romanized)
+        prev_syllable = syllable
 
-        return u''.join(result)
+    return "".join(result)
