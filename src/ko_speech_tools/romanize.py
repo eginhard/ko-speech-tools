@@ -10,7 +10,8 @@ Adapted from: https://github.com/youknowone/hangul-romanize
 The original functionality is maintained. Main changes include:
 - Code simplification.
 - Adding type hints and docstrings.
-- Update to modern Python standards."""
+- Update to modern Python standards.
+"""
 
 import itertools
 
