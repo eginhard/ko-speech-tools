@@ -37,7 +37,6 @@ issues = "https://github.com/eginhard/ko-speech-tools/issues"
 [project.optional-dependencies]
 g2p = [
     "mecab-ko>=1.0.2",
-    "nltk>=3.9.1",
 ]
 
 [build-system]

@@ -11,6 +11,7 @@ Adapted from: https://github.com/harmlessman/g2pkk
 
 import re
 
+from ko_speech_tools.g2p.cmudict import CMUDict
 from ko_speech_tools.g2p.utils import (
     adjust,
     compose,
@@ -21,23 +22,22 @@ from ko_speech_tools.g2p.utils import (
 )
 
 
-def convert_eng(string, cmu):
+def convert_eng(string: str, cmu: CMUDict) -> str:
     """Convert a string such that English words inside are turned into Hangul.
 
     Args:
         string: input string.
         cmu: cmu dict object.
 
-    >>> convert_eng("그 사람 좀 old school이야", cmu)
-    그 사람 좀 올드 스쿨이야
+    >>> convert_eng("그 사람 좀 old school이야", CMUDict())
+    '그 사람 좀 올드 스쿨이야'
     """
     eng_words = set(re.findall("[A-Za-z']+", string))
     for eng_word in eng_words:
-        word = eng_word.lower()
-        if word not in cmu:
+        if eng_word not in cmu:
             continue
 
-        arpabets = cmu[word][0]  # https://en.wikipedia.org/wiki/ARPABET
+        arpabets = cmu[eng_word][0].split()  # https://en.wikipedia.org/wiki/ARPABET
         phonemes = adjust(arpabets)
         ret = ""
         for i in range(len(phonemes)):

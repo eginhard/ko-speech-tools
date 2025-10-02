@@ -16,18 +16,9 @@ The original functionality is maintained. Main changes include:
 
 import re
 from importlib.resources import files
+from typing import Any
 
-import nltk
-from nltk.corpus import cmudict
-
-from ko_speech_tools.jamo import h2j
-
-# For further info. about cmu dict, consult http://www.speech.cs.cmu.edu/cgi-bin/cmudict.
-try:
-    nltk.data.find("corpora/cmudict.zip")
-except LookupError:
-    nltk.download("cmudict")
-
+from ko_speech_tools.g2p.cmudict import CMUDict
 from ko_speech_tools.g2p.english import convert_eng
 from ko_speech_tools.g2p.numerals import convert_num
 from ko_speech_tools.g2p.regular import link1, link2, link3, link4
@@ -53,7 +44,7 @@ from ko_speech_tools.g2p.utils import (
     group,
     parse_table,
 )
-
+from ko_speech_tools.jamo import h2j
 
 class G2p:
     """Korean grapheme-to-phoneme converter.
@@ -76,8 +67,7 @@ class G2p:
         self.mecab = self.get_mecab()
         self.table = parse_table()
 
-        self.cmu = cmudict.dict()  # for English
-
+        self.cmu = CMUDict()  # for English
         self.rule2text = get_rule_id2text()  # for comments of main rules
         self._read_idioms()
 
