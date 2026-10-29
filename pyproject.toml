@@ -12,12 +12,13 @@ license-files = ["LICENSES/*.txt", "REUSE.toml"]
 authors = [
     { name = "Enno Hermann", email = "enno.hermann@gmail.com" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Science/Research",
