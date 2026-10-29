@@ -11,4 +11,4 @@ style:
 	uv run ruff format
 
 lint:
-	uv run prek run --all-files
+	uv run --all-extras prek run --all-files
