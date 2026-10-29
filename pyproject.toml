@@ -47,7 +47,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "coverage>=7.10.7",
-    "pre-commit>=4.3.0",
+    "prek>=0.5",
     "pytest>=8.4.2",
     "reuse>=5.1.1",
     "ruff==0.13.2",
