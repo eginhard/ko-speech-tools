@@ -5,7 +5,8 @@
 
 """CMUDict tests.
 
-Source: https://github.com/keithito/tacotron"""
+Source: https://github.com/keithito/tacotron
+"""
 
 import pytest
 

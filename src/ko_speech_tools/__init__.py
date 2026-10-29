@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""Korean speech tools: Hangul romanization, jamo manipulation, and G2P."""
+
 from ko_speech_tools.g2p.g2p import G2p
 from ko_speech_tools.romanize import hangul_romanize
 

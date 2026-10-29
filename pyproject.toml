@@ -4,7 +4,7 @@
 
 [project]
 name = "ko-speech-tools"
-version = "0.1.0"
+version = "0.1.1"
 description = "Korean speech/NLP tools"
 readme = "README.md"
 license = "Apache-2.0"
@@ -12,14 +12,14 @@ license-files = ["LICENSES/*.txt", "REUSE.toml"]
 authors = [
     { name = "Enno Hermann", email = "enno.hermann@gmail.com" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "Operating System :: POSIX :: Linux",
@@ -40,16 +40,17 @@ g2p = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.8.18,<0.9.0"]
+requires = ["uv_build>=0.13.6,<0.14"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
     "coverage>=7.10.7",
-    "pre-commit>=4.3.0",
-    "pytest>=8.4.2",
-    "reuse>=5.1.1",
-    "ruff==0.13.2",
+    "prek>=0.5",
+    "pytest>=9",
+    "reuse>=6",
+    "ruff==0.17.3",
+    "ty==0.0.94",
 ]
 
 [tool.coverage.report]
@@ -65,20 +66,33 @@ relative_files = true
 addopts = "--doctest-modules --doctest-glob=README.md"
 
 [tool.ruff.lint]
+preview = true
 select = ["ALL"]
 ignore = [
-    "C901",
-    "COM812",
-    "D104",
-    "FIX",
+    "compare-to-empty-string",
+    "complex-structure",
+    "missing-trailing-comma",
+    "missing-copyright-notice",
+    "multiple-leading-hashes-for-block-comment",
     "PLR09",
-    "PLR2004",
-    "PLW2901",
+    "magic-value-comparison",
+    "redefined-loop-name",
     "TD",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ANN", "D", "ERA001", "PERF203", "S101"]
+"tests/*" = [
+    "ANN",
+    "D",
+    "DOC",
+    "commented-out-code",
+    "line-contains-todo",
+    "try-except-in-loop",
+    "assert"
+]
+
+[tool.ruff.lint.pydoclint]
+ignore-one-line-docstrings = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"

@@ -36,6 +36,9 @@ def _academic_ambiguous_patterns() -> set[str]:
 
     For example, if "kk" can be split as both ("k", "k") and ("kk", ""),
     it's ambiguous and needs a hyphen marker for clarity.
+
+    Returns:
+        The set of ambiguous final+initial romanizations.
     """
     ambiguous = set()
     for final, initial in itertools.product(_REVISED_FINALS, _REVISED_INITIALS):
@@ -64,14 +67,14 @@ class _Syllable:
     MAX = ord("힣")
 
     def __init__(self, char: str | None = None, code: int | None = None) -> None:
-        if char is None and code is None:
-            msg = "__init__ takes char or code as a keyword argument (not given)"
-            raise TypeError(msg)
         if char is not None and code is not None:
             msg = "__init__ takes char or code as a keyword argument (both given)"
             raise TypeError(msg)
-        if char:
+        if char is not None:
             code = ord(char)
+        if code is None:
+            msg = "__init__ takes char or code as a keyword argument (not given)"
+            raise TypeError(msg)
         if not self.MIN <= code <= self.MAX:
             msg = f"Expected Hangul syllable but {code} not in [{self.MIN}..{self.MAX}]"
             raise TypeError(msg)
@@ -131,6 +134,9 @@ def _academic(
 
 def hangul_romanize(text: str) -> str:
     """Transliterate to romanized text.
+
+    Returns:
+        The romanized text.
 
     >>> hangul_romanize("물엿")
     'mul-yeos'

@@ -47,7 +47,7 @@ from ko_speech_tools.g2p.utils import (
 from ko_speech_tools.jamo import h2j
 
 # Precompiled regex patterns
-_ANNOTATION_TAG_RE = re.compile("/[PJEB]")
+_ANNOTATION_TAG_RE = re.compile(r"/[PJEB]")
 
 
 class G2p:
@@ -75,7 +75,8 @@ class G2p:
         self.rule2text = get_rule_id2text()  # for comments of main rules
         self._read_idioms()
 
-    def get_mecab(self) -> Any:  # noqa: ANN401
+    @staticmethod
+    def get_mecab() -> Any:  # ruff: ignore[any-type]
         """Get MeCab morphological analyzer for Korean.
 
         Returns:
@@ -85,7 +86,7 @@ class G2p:
             ImportError: If mecab_ko package is not installed.
         """
         try:
-            import mecab_ko  # noqa: PLC0415
+            import mecab_ko  # ruff: ignore[import-outside-top-level]
         except ImportError as e:
             msg = "G2P requires the mecab_ko package"
             raise ImportError(msg) from e
@@ -110,8 +111,12 @@ class G2p:
         Each line is delimited by "===", and the left string is replaced by the
         right one.
 
-        inp: input string.
-        verbose: boolean.
+        Args:
+            string: input string.
+            verbose: If True, print the applied transformation.
+
+        Returns:
+            The string with idioms replaced.
 
         >>> G2p().idioms("지금 mp3 파일을 다운받고 있어요")
         '지금 엠피쓰리 파일을 다운받고 있어요'
@@ -139,6 +144,9 @@ class G2p:
             verbose: boolean
             group_vowels: If True, the vowels of the identical sound are normalized.
             to_syl: If True, hangul letters or jamo are assembled to form syllables.
+
+        Returns:
+            The pronunciation of the input string.
 
         For example, given an input string "나의 친구가 mp3 file 3개를 다운받고 있다",
         STEP 1. idioms
@@ -194,7 +202,7 @@ class G2p:
 
         # 7. regular table: batchim + onset
         for str1, str2, rule_ids in self.table:
-            _inp = inp
+            inp_ = inp
             inp = re.sub(str1, str2, inp)
 
             if len(rule_ids) > 0:
@@ -203,7 +211,7 @@ class G2p:
                 )
             else:
                 rule = ""
-            gloss(verbose, inp, _inp, rule)
+            gloss(verbose, inp, inp_, rule)
 
         # 8 link
         for func in (link1, link2, link3, link4):

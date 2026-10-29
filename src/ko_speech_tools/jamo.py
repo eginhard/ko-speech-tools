@@ -82,6 +82,9 @@ def _hangul_char_to_jamo(syllable: str) -> tuple[str, str] | tuple[str, str, str
     """Return a 2-tuple or 3-tuple of lead, vowel, and tail jamo characters.
 
     Note: Non-Hangul characters are echoed back.
+
+    Returns:
+        The (lead, vowel) or (lead, vowel, tail) jamo, or the input unchanged.
     """
     if is_hangul_char(syllable):
         rem = ord(syllable) - _JAMO_OFFSET
@@ -129,6 +132,9 @@ def is_jamo(character: str) -> bool:
 
     Valid jamo includes all modern and archaic jamo, as well as all HCJ.
     Non-assigned code points are invalid.
+
+    Returns:
+        True if the character is jamo, False otherwise.
     """
     code = ord(character)
     return (
@@ -148,6 +154,9 @@ def is_jamo_modern(character: str) -> bool:
 
     WARNING: U+1160 is NOT considered a modern jamo character, but it is listed
     under 'Medial Vowels' in the Unicode 7.0 spec.
+
+    Returns:
+        True if the character is modern jamo, False otherwise.
     """
     code = ord(character)
     return (
@@ -163,6 +172,9 @@ def is_hcj(character: str) -> bool:
 
     HCJ is defined as the U+313x to U+318x block, sans two non-assigned code
     points.
+
+    Returns:
+        True if the character is HCJ, False otherwise.
     """
     return 0x3131 <= ord(character) <= 0x318E and ord(character) != 0x3164
 
@@ -172,6 +184,9 @@ def is_hcj_modern(character: str) -> bool:
 
     Modern HCJ is defined as HCJ that corresponds to a U+11xx jamo character
     in modern usage.
+
+    Returns:
+        True if the character is modern HCJ, False otherwise.
     """
     code = ord(character)
     return 0x3131 <= code <= 0x314E or 0x314F <= code <= 0x3163
@@ -186,6 +201,9 @@ def is_jamo_compound(character: str) -> bool:
     """Test if a single character is a compound.
 
     Compound: a consonant cluster, double consonant, or dipthong.
+
+    Returns:
+        True if the input is a single compound jamo character, False otherwise.
     """
     if len(character) != 1:
         return False
@@ -197,10 +215,14 @@ def get_jamo_class(jamo: str) -> Literal["lead", "vowel", "tail"]:
 
     U+11xx characters are valid arguments. HCJ consonants are not valid here.
 
-    Returns the class ["lead" | "vowel" | "tail"] of a given character.
-
     Note: jamo class directly corresponds to the Unicode 7.0 specification,
     thus includes filler characters as having a class.
+
+    Returns:
+        The class ("lead", "vowel", or "tail") of the given character.
+
+    Raises:
+        InvalidJamoError: If the character is not jamo or has no class.
     """
     if jamo in JAMO_LEADS or jamo == chr(0x115F):
         return "lead"
@@ -222,6 +244,9 @@ def jamo_to_hcj(data: Iterable[str]) -> Generator[str]:
 
     jamo_to_hcj is the generator version of j2hcj, the string version. Passing
     a character to jamo_to_hcj will still return a generator.
+
+    Returns:
+        A generator of the converted characters.
     """
     return (_jamo_char_to_hcj(_) for _ in data)
 
@@ -235,6 +260,9 @@ def j2hcj(jamo: Iterable[str]) -> str:
     possible. Anything else is unchanged.
 
     j2hcj is the string version of jamo_to_hcj, the generator version.
+
+    Returns:
+        The converted string.
     """
     return "".join(jamo_to_hcj(jamo))
 
@@ -273,6 +301,9 @@ def hcj2j(hcj_char: str, position: Literal["lead", "vowel", "tail"] = "vowel") -
     """Convert a HCJ character to a jamo character.
 
     Identical to hcj_to_jamo().
+
+    Returns:
+        The corresponding U+11xx jamo character.
     """
     return hcj_to_jamo(hcj_char, position)
 
@@ -286,6 +317,9 @@ def hangul_to_jamo(hangul_string: Iterable[str]) -> Generator[str]:
     characters for any given string. Non-hangul characters are not changed.
 
     hangul_to_jamo is the generator version of h2j, the string version.
+
+    Returns:
+        A generator of jamo and unchanged non-Hangul characters.
     """
     return (
         _ for _ in chain.from_iterable(_hangul_char_to_jamo(_) for _ in hangul_string)
@@ -301,6 +335,9 @@ def h2j(hangul_string: Iterable[str]) -> str:
     string. Non-hangul characters are not touched.
 
     h2j is the string version of hangul_to_jamo, the generator version.
+
+    Returns:
+        The string with Hangul characters split into jamo.
     """
     return "".join(hangul_to_jamo(hangul_string))
 
@@ -310,9 +347,13 @@ def jamo_to_hangul(lead: str, vowel: str, tail: str | None = None) -> str:
 
     U+11xx jamo characters or HCJ are valid inputs.
 
-    Outputs a one-character Hangul string.
-
     This function is identical to j2h.
+
+    Returns:
+        A one-character Hangul string.
+
+    Raises:
+        InvalidJamoError: If the inputs do not form a valid Hangul character.
     """
     # Internally, we convert everything to a jamo char,
     # then pass it to _jamo_to_hangul_char
@@ -342,10 +383,11 @@ def j2h(lead: str, vowel: str, tail: str | None = None) -> str:
 
     U+11xx jamo characters or HCJ are valid inputs.
 
-    Outputs a one-character Hangul string.
-
     This function is defined solely for naming consistency with
     jamo_to_hangul.
+
+    Returns:
+        A one-character Hangul string.
     """
     return jamo_to_hangul(lead, vowel, tail)
 
@@ -356,6 +398,12 @@ def decompose_jamo(compound: str) -> tuple[str, ...] | str:
     Note: Non-compound characters are echoed back.
 
     WARNING: Archaic jamo compounds will raise NotImplementedError.
+
+    Returns:
+        A tuple of constituent jamo, or the input unchanged.
+
+    Raises:
+        TypeError: If the input is not a single character.
     """
     if len(compound) != 1:
         msg = (
