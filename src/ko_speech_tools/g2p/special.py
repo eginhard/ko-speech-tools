@@ -18,47 +18,47 @@ from ko_speech_tools.g2p.utils import get_rule_id2text, gloss
 rule_id2text = get_rule_id2text()
 
 # Precompiled regex patterns
-_JYEO_RE = re.compile("([ᄌᄍᄎ])ᅧ")
-_YE_RE = re.compile("([ᄀᄁᄃᄄㄹᄆᄇᄈᄌᄍᄎᄏᄐᄑᄒ])ᅨ")
-_CONSONANT_UI_RE = re.compile("([ᄀᄁᄂᄃᄄᄅᄆᄇᄈᄉᄊᄌᄍᄎᄏᄐᄑᄒ])ᅴ")
-_JOSA_UI_RE = re.compile("의/J")
+_JYEO_RE = re.compile(r"([ᄌᄍᄎ])ᅧ")
+_YE_RE = re.compile(r"([ᄀᄁᄃᄄㄹᄆᄇᄈᄌᄍᄎᄏᄐᄑᄒ])ᅨ")
+_CONSONANT_UI_RE = re.compile(r"([ᄀᄁᄂᄃᄄᄅᄆᄇᄈᄉᄊᄌᄍᄎᄏᄐᄑᄒ])ᅴ")
+_JOSA_UI_RE = re.compile(r"의/J")
 _VOWEL_UI_RE = re.compile(r"(\Sᄋ)ᅴ")
-_JAMO_1_RE = re.compile("([그])ᆮᄋ")
-_JAMO_2_RE = re.compile("([으])[ᆽᆾᇀᇂ]ᄋ")
-_JAMO_3_RE = re.compile("([으])[ᆿ]ᄋ")
-_JAMO_4_RE = re.compile("([으])[ᇁ]ᄋ")
-_RIEULGIYEOK_RE = re.compile("ᆰ/P([ᄀᄁ])")
-_RIEULBIEUB_1_RE = re.compile("([ᆲᆴ])/Pᄀ")
-_RIEULBIEUB_2_RE = re.compile("([ᆲᆴ])/Pᄃ")
-_RIEULBIEUB_3_RE = re.compile("([ᆲᆴ])/Pᄉ")
-_RIEULBIEUB_4_RE = re.compile("([ᆲᆴ])/Pᄌ")
-_VERB_NIEUN_1_RE = re.compile("([ᆫᆷ])/Pᄀ")
-_VERB_NIEUN_2_RE = re.compile("([ᆫᆷ])/Pᄃ")
-_VERB_NIEUN_3_RE = re.compile("([ᆫᆷ])/Pᄉ")
-_VERB_NIEUN_4_RE = re.compile("([ᆫᆷ])/Pᄌ")
-_VERB_NIEUN_5_RE = re.compile("ᆬ/Pᄀ")
-_VERB_NIEUN_6_RE = re.compile("ᆬ/Pᄃ")
-_VERB_NIEUN_7_RE = re.compile("ᆬ/Pᄉ")
-_VERB_NIEUN_8_RE = re.compile("ᆬ/Pᄌ")
-_VERB_NIEUN_9_RE = re.compile("ᆱ/Pᄀ")
-_VERB_NIEUN_10_RE = re.compile("ᆱ/Pᄃ")
-_VERB_NIEUN_11_RE = re.compile("ᆱ/Pᄉ")
-_VERB_NIEUN_12_RE = re.compile("ᆱ/Pᄌ")
-_BALB_1_RE = re.compile("(바)ᆲ($|[^ᄋᄒ])")
-_BALB_2_RE = re.compile("(너)ᆲ([ᄌᄍ]ᅮ|[ᄃᄄ]ᅮ)")
-_PALATALIZE_1_RE = re.compile("ᆮᄋ([ᅵᅧ])")
-_PALATALIZE_2_RE = re.compile("ᇀᄋ([ᅵᅧ])")
-_PALATALIZE_3_RE = re.compile("ᆴᄋ([ᅵᅧ])")
-_PALATALIZE_4_RE = re.compile("ᆮᄒ([ᅵ])")
-_MODIFYING_RIEUL_1_RE = re.compile("ᆯ/E ᄀ")
-_MODIFYING_RIEUL_2_RE = re.compile("ᆯ/E ᄃ")
-_MODIFYING_RIEUL_3_RE = re.compile("ᆯ/E ᄇ")
-_MODIFYING_RIEUL_4_RE = re.compile("ᆯ/E ᄉ")
-_MODIFYING_RIEUL_5_RE = re.compile("ᆯ/E ᄌ")
+_JAMO_1_RE = re.compile(r"([그])ᆮᄋ")
+_JAMO_2_RE = re.compile(r"([으])[ᆽᆾᇀᇂ]ᄋ")
+_JAMO_3_RE = re.compile(r"([으])[ᆿ]ᄋ")
+_JAMO_4_RE = re.compile(r"([으])[ᇁ]ᄋ")
+_RIEULGIYEOK_RE = re.compile(r"ᆰ/P([ᄀᄁ])")
+_RIEULBIEUB_1_RE = re.compile(r"([ᆲᆴ])/Pᄀ")
+_RIEULBIEUB_2_RE = re.compile(r"([ᆲᆴ])/Pᄃ")
+_RIEULBIEUB_3_RE = re.compile(r"([ᆲᆴ])/Pᄉ")
+_RIEULBIEUB_4_RE = re.compile(r"([ᆲᆴ])/Pᄌ")
+_VERB_NIEUN_1_RE = re.compile(r"([ᆫᆷ])/Pᄀ")
+_VERB_NIEUN_2_RE = re.compile(r"([ᆫᆷ])/Pᄃ")
+_VERB_NIEUN_3_RE = re.compile(r"([ᆫᆷ])/Pᄉ")
+_VERB_NIEUN_4_RE = re.compile(r"([ᆫᆷ])/Pᄌ")
+_VERB_NIEUN_5_RE = re.compile(r"ᆬ/Pᄀ")
+_VERB_NIEUN_6_RE = re.compile(r"ᆬ/Pᄃ")
+_VERB_NIEUN_7_RE = re.compile(r"ᆬ/Pᄉ")
+_VERB_NIEUN_8_RE = re.compile(r"ᆬ/Pᄌ")
+_VERB_NIEUN_9_RE = re.compile(r"ᆱ/Pᄀ")
+_VERB_NIEUN_10_RE = re.compile(r"ᆱ/Pᄃ")
+_VERB_NIEUN_11_RE = re.compile(r"ᆱ/Pᄉ")
+_VERB_NIEUN_12_RE = re.compile(r"ᆱ/Pᄌ")
+_BALB_1_RE = re.compile(r"(바)ᆲ($|[^ᄋᄒ])")
+_BALB_2_RE = re.compile(r"(너)ᆲ([ᄌᄍ]ᅮ|[ᄃᄄ]ᅮ)")
+_PALATALIZE_1_RE = re.compile(r"ᆮᄋ([ᅵᅧ])")
+_PALATALIZE_2_RE = re.compile(r"ᇀᄋ([ᅵᅧ])")
+_PALATALIZE_3_RE = re.compile(r"ᆴᄋ([ᅵᅧ])")
+_PALATALIZE_4_RE = re.compile(r"ᆮᄒ([ᅵ])")
+_MODIFYING_RIEUL_1_RE = re.compile(r"ᆯ/E ᄀ")
+_MODIFYING_RIEUL_2_RE = re.compile(r"ᆯ/E ᄃ")
+_MODIFYING_RIEUL_3_RE = re.compile(r"ᆯ/E ᄇ")
+_MODIFYING_RIEUL_4_RE = re.compile(r"ᆯ/E ᄉ")
+_MODIFYING_RIEUL_5_RE = re.compile(r"ᆯ/E ᄌ")
 
 
-############################ vowels ############################
-def jyeo(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+# vowels ############################
+def jyeo(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply jyeo vowel rule: [ᄌᄍᄎ]ᅧ → [ᄌᄍᄎ]ᅥ.
 
     Args:
@@ -96,7 +96,7 @@ def ye(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:
     return out
 
 
-def consonant_ui(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def consonant_ui(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply consonant+ᅴ → consonant+ᅵ simplification.
 
     Args:
@@ -150,7 +150,7 @@ def vowel_ui(inp: str, *, descriptive: bool = False, verbose: bool = False) -> s
     return out
 
 
-def jamo(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def jamo(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply jamo simplification for specific coda+onset combinations.
 
     Args:
@@ -172,10 +172,10 @@ def jamo(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str: 
     gloss(verbose, out, inp, rule)
     return out
 
-    ############################ 어간 받침 ############################
+    # 어간 받침 ############################
 
 
-def rieulgiyeok(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def rieulgiyeok(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply rieul-giyeok tensification: ᆰ/P+ᄀ → ᆯᄁ.
 
     Args:
@@ -195,7 +195,7 @@ def rieulgiyeok(inp: str, *, descriptive: bool = False, verbose: bool = False) -
     return out
 
 
-def rieulbieub(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def rieulbieub(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply rieul-bieub tensification for predicate stems: [ᆲᆴ]/P+consonant → tense.
 
     Args:
@@ -218,7 +218,7 @@ def rieulbieub(inp: str, *, descriptive: bool = False, verbose: bool = False) ->
     return out
 
 
-def verb_nieun(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def verb_nieun(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply nasal coda tensification for predicate stems: [ᆫᆬᆷᆱ]/P+consonant → tense.
 
     Args:
@@ -249,7 +249,7 @@ def verb_nieun(inp: str, *, descriptive: bool = False, verbose: bool = False) ->
     return out
 
 
-def balb(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def balb(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply exceptions for 밟 (balb) pronunciation in specific words.
 
     Args:
@@ -270,7 +270,7 @@ def balb(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str: 
     return out
 
 
-def palatalize(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # noqa: ARG001
+def palatalize(inp: str, *, descriptive: bool = False, verbose: bool = False) -> str:  # ruff: ignore[unused-function-argument]
     """Apply palatalization: ᆮ+[ᅵᅧ]→ᄌ, ᇀ+[ᅵᅧ]→ᄎ, ᆴ+[ᅵᅧ]→ᆯᄎ, ᆮ히→치.
 
     Args:
@@ -297,7 +297,7 @@ def palatalize(inp: str, *, descriptive: bool = False, verbose: bool = False) ->
 def modifying_rieul(
     inp: str,
     *,
-    descriptive: bool = False,  # noqa: ARG001
+    descriptive: bool = False,  # ruff: ignore[unused-function-argument]
     verbose: bool = False,
 ) -> str:
     """Apply tensification after rieul adnominal ending: ᆯ/E+consonant → tense.

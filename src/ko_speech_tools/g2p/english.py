@@ -22,8 +22,8 @@ from ko_speech_tools.g2p.utils import (
 )
 
 # Precompiled regex patterns
-_ENG_WORD_RE = re.compile("[A-Za-z']+")
-_HANGUL_JAMO_RE = re.compile("[\u1100-\u11ff]")
+_ENG_WORD_RE = re.compile(r"[A-Za-z']+")
+_HANGUL_JAMO_RE = re.compile(r"[\u1100-\u11ff]")
 
 
 def convert_eng(string: str, cmu: CMUDict) -> str:
@@ -32,6 +32,9 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
     Args:
         string: input string.
         cmu: cmu dict object.
+
+    Returns:
+        The string with known English words transliterated into Hangul.
 
     >>> convert_eng("그 사람 좀 old school이야", CMUDict())
     '그 사람 좀 올드 스쿨이야'
@@ -86,14 +89,14 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
             # 2. 어말의 [ʃ]는 '시'로 적고, 자음 앞의 [ʃ]는 '슈'로, 모음 앞의 [ʃ]는
             #    뒤따르는 모음에 따라 '샤', '섀', '셔', '셰', '쇼', '슈', '시'로 적는다.
             # 3. 어말 또는 자음 앞의 [ʒ]는 '지'로 적고, 모음 앞의 [ʒ]는 'ㅈ'으로 적는다.
-            elif p in ("S", "Z", "F", "V", "TH", "DH", "SH", "ZH"):
+            elif p in {"S", "Z", "F", "V", "TH", "DH", "SH", "ZH"}:
                 ret += to_choseong(p)
 
-                if p in ("S", "Z", "F", "V", "TH", "DH"):  # 1
+                if p in {"S", "Z", "F", "V", "TH", "DH"}:  # 1
                     if p_next[0] in syllable_final_or_consonants:
                         ret += "ᅳ"
                 elif p == "SH":  # 2
-                    if p_next[0] in "$":
+                    if p_next[0] == "$":
                         ret += "ᅵ"
                     elif p_next[0] in consonants:
                         ret += "ᅲ"
@@ -106,11 +109,11 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
             # 1. 어말 또는 자음 앞의 [ʦ], [ʣ]는 '츠', '즈'로 적고,
             #    [ʧ], [ʤ]는 '치', '지'로 적는다.
             # 2. 모음 앞의 [ʧ], [ʤ]는 'ㅊ', 'ㅈ'으로 적는다.
-            elif p in ("TS", "DZ", "CH", "JH"):
+            elif p in {"TS", "DZ", "CH", "JH"}:
                 ret += to_choseong(p)  # 2
 
                 if p_next[0] in syllable_final_or_consonants:  # 1
-                    if p in ("TS", "DZ"):
+                    if p in {"TS", "DZ"}:
                         ret += "ᅳ"
                     else:
                         ret += "ᅵ"
@@ -118,7 +121,7 @@ def convert_eng(string: str, cmu: CMUDict) -> str:
             # 5항. 비음([m], [n], [ŋ])
             # 1. 어말 또는 자음 앞의 비음은 모두 받침으로 적는다.
             # 2. 모음과 모음 사이의 [ŋ]은 앞 음절의 받침 'ㆁ'으로 적는다.
-            elif p in ("M", "N", "NG"):
+            elif p in {"M", "N", "NG"}:
                 if p in "MN" and p_next[0] in vowels:
                     ret += to_choseong(p)
                 else:

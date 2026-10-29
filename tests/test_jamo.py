@@ -26,7 +26,7 @@ _HCJ_VOWELS_MODERN = [chr(_) for _ in range(0x314F, 0x3164)]
 _HCJ_TAILS_MODERN = "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ"
 
 # Common invalid test data (non-jamo characters)
-_INVALID_CHARS_BASE = "abABzyZY ,.:;~`―—–/!@#$%^&*()[]{}"  # noqa: RUF001
+_INVALID_CHARS_BASE = "abABzyZY ,.:;~`―—–/!@#$%^&*()[]{}"  # ruff: ignore[ambiguous-unicode-character-string]
 
 
 def _get_random_hangul(count=(0xD7A4 - 0xAC00)):
@@ -478,7 +478,9 @@ def test_decompose_jamo():
 
     for test, target in all_tests:
         trial = jamo.decompose_jamo(test)
-        assert not jamo.is_jamo_compound(trial), "decompose_jamo returned a compound"
+        assert not any(jamo.is_jamo_compound(c) for c in trial), (
+            "decompose_jamo returned a compound"
+        )
         # Test for strict version of decompose_jamo():
         # assert 2 <= len(trial) <= 3,\
         #     "decompose_jamo failed to return a tuple of 2-3 jamo " +\

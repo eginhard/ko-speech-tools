@@ -6,6 +6,7 @@
 """Adapted from: https://github.com/harmlessman/g2pkk."""
 
 import re
+from string import digits
 
 # This is a list of bound nouns preceded by pure Korean numerals.
 BOUND_NOUNS = (
@@ -14,16 +15,21 @@ BOUND_NOUNS = (
 )
 
 # Precompiled regex patterns
-_COMMA_RE = re.compile(",")
+_COMMA_RE = re.compile(r",")
 _BOUND_NOUN_RE = re.compile(r"([\d][\d,]*)([ㄱ-힣]+)/B")
 
 
 def process_num(num: str, *, sino: bool = True) -> str:
     """Process a string looking like arabic number.
 
-    num: string. Consists of [0-9,]. e.g., 12,345
-    sino: boolean. If True, sino-Korean numerals, i.e., 일, 이, .. are considered.
-        Otherwise, return pure Korean ones in their modifying forms such as 한, 두, ...
+    Args:
+        num: string. Consists of [0-9,]. e.g., 12,345
+        sino: If True, sino-Korean numerals, i.e., 일, 이, .. are considered.
+            Otherwise, return pure Korean ones in their modifying forms such as
+            한, 두, ...
+
+    Returns:
+        The number spelled out in Korean.
 
     >>> process_num("123,456,789", sino=True)
     '일억이천삼백사십오만육천칠백팔십구'
@@ -111,6 +117,9 @@ def process_num(num: str, *, sino: bool = True) -> str:
 def convert_num(string: str) -> str:
     """Convert a annotated string such that arabic numerals inside are spelled out.
 
+    Returns:
+        The string with arabic numerals spelled out in Korean.
+
     >>> convert_num("우리 3시/B 10분/B에 만나자.")
     '우리 세시/B 십분/B에 만나자.'
 
@@ -126,7 +135,6 @@ def convert_num(string: str) -> str:
         string = string.replace(f"{num}{bn}/B", f"{spelledout}{bn}/B")
 
     # digit by digit for remaining digits
-    digits = "0123456789"
     names = "영일이삼사오육칠팔구"
     for d, n in zip(digits, names, strict=True):
         string = string.replace(d, n)

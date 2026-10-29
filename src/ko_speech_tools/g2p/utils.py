@@ -16,11 +16,11 @@ _DATA_PATH = files("ko_speech_tools.data.g2p")
 
 # Precompiled regex patterns
 _DIGIT_RE = re.compile(r"\d")
-_VOWEL_PLACEHOLDER_RE = re.compile("(^|[^\u1100-\u1112])([\u1161-\u1175])")
-_CVC_RE = re.compile("[\u1100-\u1112][\u1161-\u1175][\u11a8-\u11c2]")
-_CV_RE = re.compile("[\u1100-\u1112][\u1161-\u1175]")
+_VOWEL_PLACEHOLDER_RE = re.compile(r"(^|[^\u1100-\u1112])([\u1161-\u1175])")
+_CVC_RE = re.compile(r"[\u1100-\u1112][\u1161-\u1175][\u11a8-\u11c2]")
+_CV_RE = re.compile(r"[\u1100-\u1112][\u1161-\u1175]")
 _EXAMPLE_RE = re.compile(r"([ㄱ-힣][ ㄱ-힣]*)\[([ㄱ-힣][ ㄱ-힣]*)]")
-_ANNOTATION_TAG_RE = re.compile("/[EJPB]")
+_ANNOTATION_TAG_RE = re.compile(r"/[EJPB]")
 
 # fmt: off
 _ARPABET_TO_CHOSEONG = {
@@ -191,7 +191,7 @@ def parse_table() -> list[tuple[str, str, list[str]]]:
 
 
 ############## Preprocessing ##############
-def annotate(string: str, mecab: Any) -> str:  # noqa: ANN401
+def annotate(string: str, mecab: Any) -> str:  # ruff: ignore[any-type]
     """Add morphological annotations to guide phonological rules.
 
     Uses MeCab to identify parts of speech and adds tags:
@@ -234,7 +234,7 @@ def annotate(string: str, mecab: Any) -> str:  # noqa: ANN401
         if char == "의" and tag == "J":
             annotated_parts.append("/J")
         elif tag == "E":
-            if h2j(char)[-1] in "ᆯ":
+            if h2j(char)[-1] == "ᆯ":
                 annotated_parts.append("/E")
         elif tag == "V":
             if h2j(char)[-1] in "ᆫᆬᆷᆱᆰᆲᆴ":
@@ -279,6 +279,9 @@ def group(inp: str) -> str:
     """For group_vowels=True.
 
     Contemporarily, Korean speakers don't distinguish some vowels.
+
+    Returns:
+        The string with indistinguishable vowels merged.
     """
     inp = inp.replace("ᅢ", "ᅦ")
     inp = inp.replace("ᅤ", "ᅨ")
@@ -293,11 +296,11 @@ def _get_examples() -> list[tuple[str, str]]:
         for line in text:
             if line.startswith("->"):
                 examples.extend(_EXAMPLE_RE.findall(line))
-    _examples = []
+    examples_ = []
     for inp, gt in examples:
-        _examples.extend((inp, each) for each in gt.split("/"))
+        examples_.extend((inp, each) for each in gt.split("/"))
 
-    return _examples
+    return examples_
 
 
 ############## Utilities ##############
@@ -312,8 +315,8 @@ def get_rule_id2text() -> dict[str, str]:
     return rule_id2text
 
 
-def gloss(verbose: bool, out: str, inp: str, rule: str) -> None:  # noqa: FBT001
+def gloss(verbose: bool, out: str, inp: str, rule: str) -> None:  # ruff: ignore[boolean-type-hint-positional-argument]
     """Display the process and relevant information."""
     if verbose and out != inp and out != _ANNOTATION_TAG_RE.sub("", inp):
-        print(compose(inp), "->", compose(out))  # noqa: T201
-        print("\033[1;31m", rule, "\033[0m")  # noqa: T201
+        print(compose(inp), "->", compose(out))  # ruff: ignore[print]
+        print("\033[1;31m", rule, "\033[0m")  # ruff: ignore[print]
